@@ -1,182 +1,95 @@
-# SnapTalk
+#SnapTalk: End-to-End Multimodal AI Language Learning Platform
 
-SnapTalk is an interactive multimodal language-learning pipeline: upload an image, detect and segment real objects, translate target vocabulary, synthesize pronunciation audio, and optionally evaluate learner pronunciation with per-phoneme feedback.
+SnapTalk is a production-ready, interactive pipeline that transforms real-world environments into language-learning experiences. It leverages state-of-the-art Computer Vision (YOLOv8, MobileSAM) and Vision-Language Models (Qwen2-VL/GPT-4o) to automate flashcard generation and provide phoneme-level pronunciation feedback
 
-## Overview
 
-The active runtime flow is:
 
-1. Object detection (LDET via YOLOv8m class-agnostic mode)
-2. Object naming (Qwen2-VL or OpenAI GPT-4V provider)
-3. Object segmentation (MobileSAM or bbox fallback)
-4. Flashcard generation (translation + IPA + example sentence)
-5. TTS generation (Edge-TTS with offline silence fallback)
-6. Optional pronunciation scoring (remote/local/simulation)
+## Technical Architecture (Modular AI Pipeline)
 
-The project supports:
+### The project is built on a modular service architecture, ensuring scalability and high maintainability. Each stage of the pipeline is a dedicated service:
 
-- Interactive CLI learning flow via scripts/snap_learn.py
-- Standalone pronunciation lab via scripts/pronunciation_lab.py
-- FastAPI endpoints for pipeline, translation, TTS, and pronunciation
+1. Detection & Recognition: Class-agnostic object detection using YOLOv8m followed by semantic labeling via configurable VLM Providers (Qwen2-VL-2B or GPT-4o).
 
-## Environment Setup
+2. Segmentation: Precise object isolation using MobileSAM to generate transparent crops and artifact overlays.
 
-### Requirements
+3. Linguistic Enrichment: Automated flashcard generation including translations, IPA phonetics, and example sentences through a robust fallback chain (DeepL, Google Cloud, Ollama).
 
-- Python 3.9+
-- Model files in repository root:
-  - yolov8m.pt
-  - mobile_sam.pt
+4. Speech Synthesis: High-fidelity audio generation via Edge-TTS.
 
-### Install
+5. Pronunciation Lab: A hybrid scoring system using Whisper and Wav2Vec2 for detailed, per-phoneme alignment and evaluation.
 
-```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-```
 
-### Optional .env configuration
 
-Create .env in repository root to override defaults from app/core/config.py:
+## Model & Engine Inventory
 
-```env
-APP_NAME=SnapTalk AI Service
-HOST=0.0.0.0
-PORT=8000
+### Task & Engine / Model 
 
-# Translation
-DEEPL_API_KEY=
-GOOGLE_CLOUD_PROJECT_ID=
-GOOGLE_CLOUD_CREDENTIALS_PATH=
-TRANSLATION_GOOGLE_MODE=official_with_fallback
+Object Detection   YOLOv8m (yolov8m.pt)
 
-# LLM / Ollama
-LLM_BASE_URL=http://localhost:11434/v1
-LLM_API_KEY=ollama
-TRANSLATION_DEFAULT_MODEL=llama3.2:3b
+Segmentation   MobileSAM (mobile_sam.pt)
 
-# Pronunciation
-PRONUNCIATION_MODE=hybrid
-PRONUNCIATION_LOCAL_ENABLED=false
-PRONUNCIATION_MODEL_DEVICE=cpu
-```
+Vision-Language   Qwen2-VL-2B-Instruct / GPT-4o
 
-## Code Structure
+Translation   DeepL / Google Cloud / Ollama Fallback
 
-```text
+Audio Synthesis   Edge-TTS
+
+Pronunciation   OpenAI Whisper & facebook/wav2vec2-base-960h
+
+
+
+## Key Features & Performance
+
+Modular Entry Points: Supports both a FastAPI REST server for production and an Interactive CLI for local experimentation.
+
+Production Safeguards: Implements network security utilities, byte-limit enforcement, and content-type validation.
+
+Translation Memory: Integrated SQLite cache to optimize latency and cost for recurring translations.
+
+Runtime Verification: Automated auditing of deployment topology, latency benchmarks, and credential presence.
+
+
+
+## Project Structure
+
 snaptalk/
-|- app/
-|  |- main.py
-|  |- core/
-|  |  |- config.py
-|  |- routers/
-|  |  |- pipeline_vlm.py
-|  |  |- pronunciation.py
-|  |  |- translation.py
-|  |  |- tts.py
-|  |- schemas/
-|  |  |- pipeline.py
-|  |  |- speech.py
-|  |  |- translation.py
-|  |  |- vision.py
-|  |- services/
-|  |  |- detection/
-|  |  |  |- snap_learn_vlm.py
-|  |  |- segmentation/
-|  |  |  |- service.py
-|  |  |- recognition/
-|  |  |  |- vlm_providers/
-|  |  |  |  |- base.py
-|  |  |  |  |- openai_gpt4v.py
-|  |  |  |  |- qwen2vl.py
-|  |  |- translation/
-|  |  |  |- service.py
-|  |  |- tts/
-|  |  |  |- service.py
-|  |  |- pronunciation/
-|  |  |  |- pronunciation_lab.py
-|  |  |  |- service.py
-|  |- utils/
-|     |- network_security.py
-|- scripts/
-|  |- snap_learn.py
-|  |- pronunciation_lab.py
-|- docs/
-|  |- RUNTIME_VERIFICATION.md
-|- tests/
-|- data/
-|  |- seed_translations.json
-|  |- yolo_world_vocab.txt
-|- requirements.txt
-```
+├── app/                # Core FastAPI application & Modular Services
+│   ├── services/       # Detection, Segmentation, Translation, TTS, Pronunciation
+│   └── routers/        # Dedicated API endpoints
+├── scripts/            # CLI Tools (Snap & Learn flow, Pronunciation Lab)
+├── docs/               # Technical documentation & Runtime evidence
+└── tests/              # Comprehensive API and Flow testing
 
-## API Endpoints
 
-Mounted active endpoints:
 
-- GET /health
-- POST /v1/pipeline/snap-learn-vlm
-- POST /v1/translation/flashcard
-- POST /v1/speech/tts
-- POST /v1/speech/pronunciation
 
 ## Quick Start
 
-### Run interactive Snap & Learn CLI
+### Prerequisites
+Python 3.9+
 
-```powershell
-python scripts/snap_learn.py --image "D:/path/to/image.jpg"
-```
+Model weights (yolov8m.pt, mobile_sam.pt) in root
 
-### Run standalone pronunciation lab
+### Installation
 
-```powershell
-python scripts/pronunciation_lab.py
-```
+git clone https://github.com/your-username/snaptalk.git
+cd snaptalk
+python -m venv .venv
+source .venv/bin/activate  # Or .venv\Scripts\Activate.ps1 for Windows
+pip install -r requirements.txt
 
-### Run FastAPI server
+### Execution
+Run CLI Flow: python scripts/snap_learn.py --image "path/to/image.jpg"
 
-```powershell
-uvicorn app.main:app --host 127.0.0.1 --port 8000
-```
+Run API Server: uvicorn app.main:app --host 127.0.0.1 --port 8000
 
-Then open:
 
-- http://127.0.0.1:8000/docs
-- http://127.0.0.1:8000/redoc
 
-## Testing
+## Testing & Reliability
+We maintain high reliability through rigorous testing:
 
-Run all tests:
+Integration Tests: Validating the entire flow from image upload to pronunciation scoring.
 
-```powershell
-pytest -q
-```
+Security Checks: Ensuring zero exposure of legacy endpoints and validating remote fetch safety.
 
-Run selected suites:
-
-```powershell
-pytest tests/test_api.py -q
-pytest tests/test_snap_learn_flow.py -q
-```
-
-## Runtime Verification
-
-See docs/RUNTIME_VERIFICATION.md for:
-
-- Active route topology
-- Latency benchmarks
-- Legacy endpoint non-exposure checks
-- Translation runtime configuration checks
-- Credential presence checks
-
-## Notes
-
-- First run may be slower due to model loading and cache warm-up.
-- CPU mode is supported; CUDA improves VLM and pronunciation speed.
-- Audio outputs are served from /static/audio and persisted under data/audio.
-
-## Acknowledgement
-
-SnapTalk combines detection, segmentation, translation, TTS, and pronunciation systems through a modular service architecture designed for practical language-learning workflows.
+Performance: Benchmarked health and translation baselines documented in docs/RUNTIME_VERIFICATION.md
