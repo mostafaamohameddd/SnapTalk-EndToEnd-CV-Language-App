@@ -51,7 +51,7 @@ Runtime Verification: Automated auditing of deployment topology, latency benchma
 
 
 ## Project Structure
-
+```
 snaptalk/
 ├── app/                        # Core FastAPI application
 │   ├── main.py                 # Application entry point & route wiring
@@ -70,7 +70,7 @@ snaptalk/
 ├── tests/                      # Comprehensive API and Flow testing
 ├── data/                       # Seed translations & artifact storage
 └── requirements.txt            # Project dependencies
-
+```
 
 
 ## Quick Start
