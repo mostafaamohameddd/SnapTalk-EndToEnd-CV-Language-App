@@ -53,14 +53,23 @@ Runtime Verification: Automated auditing of deployment topology, latency benchma
 ## Project Structure
 
 snaptalk/
-├── app/                # Core FastAPI application & Modular Services
-│   ├── services/       # Detection, Segmentation, Translation, TTS, Pronunciation
-│   └── routers/        # Dedicated API endpoints
-├── scripts/            # CLI Tools (Snap & Learn flow, Pronunciation Lab)
-├── docs/               # Technical documentation & Runtime evidence
-└── tests/              # Comprehensive API and Flow testing
-
-
+├── app/                        # Core FastAPI application
+│   ├── main.py                 # Application entry point & route wiring
+│   ├── core/                   # Configuration & global settings
+│   ├── routers/                # Dedicated API endpoints (VLM, TTS, etc.)
+│   ├── services/               # Modular AI logic
+│   │   ├── detection/          # YOLOv8 implementation
+│   │   ├── segmentation/       # MobileSAM services
+│   │   ├── recognition/        # VLM provider orchestration
+│   │   ├── translation/        # Multi-engine translation logic
+│   │   ├── tts/                # Edge-TTS synthesis
+│   │   └── pronunciation/      # Whisper & Wav2Vec2 scoring
+│   └── schemas/                # Pydantic models for API validation
+├── scripts/                    # CLI Tools (Snap & Learn flow, Pronunciation Lab)
+├── docs/                       # Technical documentation & Runtime evidence
+├── tests/                      # Comprehensive API and Flow testing
+├── data/                       # Seed translations & artifact storage
+└── requirements.txt            # Project dependencies
 
 
 ## Quick Start
