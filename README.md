@@ -1,6 +1,6 @@
 # SnapTalk: End-to-End Multimodal AI Language Learning Platform
 
-### SnapTalk is a production-ready, interactive pipeline that transforms real-world environments into language-learning experiences. It leverages state-of-the-art Computer Vision (YOLOv8, MobileSAM) and Vision-Language Models (Qwen2-VL/GPT-4o) to automate flashcard generation and provide phoneme-level pronunciation feedback
+SnapTalk is a production-ready, interactive pipeline that transforms real-world environments into language-learning experiences. It leverages state-of-the-art Computer Vision (YOLOv8, MobileSAM) and Vision-Language Models (Qwen2-VL/GPT-4o) to automate flashcard generation and provide phoneme-level pronunciation feedback
 
 
 
